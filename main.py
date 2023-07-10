@@ -1,8 +1,11 @@
-import chat
+import language_model
+import asyncio
 
-def main():
-    chat.start_chat()
-    chat.get_response("Hello, How are you?")
+async def main():
+    chat = language_model.LanguageModel("chat-bison@001")
+    await chat.start_chat()
+    response = await chat.get_response("Hello, How are you?")
+    print(response)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

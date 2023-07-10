@@ -1,10 +1,7 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from google.auth import credentials
 from google.oauth2 import service_account
 import google.cloud.aiplatform as aiplatform
 from vertexai.preview.language_models import ChatModel, InputOutputTextPair
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 import vertexai
 import json  # add this line
 from langchain.chat_models import ChatVertexAI
@@ -16,10 +13,10 @@ from langchain.prompts.chat import (
 from langchain.schema import HumanMessage, SystemMessage
 
 
-class ChatModel:
+class LanguageModel:
     credentials = None
     project_id = None
-    chatVertexAI = None
+    chatVertexAI = ChatVertexAI()
 
     def __init__(self, model_name: str):
         self.model_name = model_name
@@ -41,7 +38,6 @@ class ChatModel:
         aiplatform.init(
             credentials=self.credentials,
         )
-        self.chatVertexAI = ChatVertexAI()
 
     async def start_chat(self, messages= None, **kwargs):
         if messages is None:
@@ -50,10 +46,10 @@ class ChatModel:
                 HumanMessage(content="World."),
             ]
 
-        self.chatVertexAI.chat(messages)
+        self.chatVertexAI(messages)
 
 
-    def get_response(self, human_msg) -> str:
+    async def get_response(self, human_msg) -> str:
 
         # Initialize Vertex AI with project and location
         vertexai.init(project=self.project_id, location="us-central1")
@@ -71,4 +67,4 @@ class ChatModel:
         # Send the human message to the model and get a response
         response = chat.send_message(human_msg, **parameters)
         # Return the model's response
-        return response
+        return response.text
